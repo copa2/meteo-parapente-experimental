@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+	<title>Meteo-Parapente Experimental</title>
+
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+	<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.10/css/weather-icons.min.css" rel="stylesheet">
+
+
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
+	<script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
+
+	<!-- REVISIT: No external link? -->
+	<link rel="stylesheet" href="./css/leaflet-sidebarv2.min.css" />
+	<script src="./js/leaflet-sidebarv2.min.js"></script>
+
+	<link rel="stylesheet" href="./css/mp.css" />
+
+</head>
+
+<body>
+
+	<!-- Sidebar -->
+	<div id="sidebar" class="sidebar collapsed">
+		<!-- Nav tabs -->
+		<div class="sidebar-tabs">
+			<ul role="tablist">
+				<li><a href="#home" role="tab"><i class="fa fa-bars"></i></a></li>
+				<li><a href="#thermals" role="tab"><i class="wi wi-tornado" title="Thermals"></i></a></li>
+				<li><a href="#wind" role="tab"><i class="wi wi-strong-wind" title="Wind"></i></a></li>
+				<li><a href="#bl" role="tab"><i class="wi wi-windy" title="Boundary Layer"></i></a></li>
+				<li><a href="#clouds" role="tab"><i class="wi wi-cloud" title="Clouds"></i></a></li>
+				<li><a href="#rain" role="tab"><i class="wi wi-rain" title="Rain"></i></a></li>
+				<li><a href="#misc" role="tab"><i class="wi wi-na" title="Misc."></i></a></li>
+			</ul>
+
+			<ul role="tablist">
+				<li><a href="#settings" role="tab"><i class="fa fa-gear"></i></a></li>
+			</ul>
+		</div>
+
+		<!-- Tab panes -->
+		<div class="sidebar-content">
+			<div class="sidebar-pane" id="home">
+				<h1 class="sidebar-header">meteo-parapente<span class="sidebar-close"><i class="fa fa-close"></i></span>
+                </h1>
+
+				<p>Some explanation about the site and other html you want to provide...</p>
+
+			</div>
+
+			<div class="sidebar-pane" id="thermals">
+				<h1 class="sidebar-header">Thermals<span class="sidebar-close"><i class="fa fa-close"></i></span></h1>
+				<ul class="rasp-layers">
+					<li><a href="#wstar">Thermal Updrafts Strength</a></li>
+					<li><a href="#bsratio">Buoyancy/Shear Ratio</a></li>
+				</ul>
+				<div class="explain">
+					<div class="wstar">Average dry thermal updraft strength near mid-BL height.
+						<p>Subtract glider descent rate to get average vario reading for cloudless thermals.</p>
+						<p>Updraft strengths will be stronger than this forecast if convective clouds are present, since cloud condensation adds buoyancy aloft (i.e. this neglects cloudsuck).</p>
+						<p>W* depends upon both the surface heating and the BL depth</p>
+					</div>
+					<div class="bsratio">Dry thermals may be broken up by vertical wind shear (i.e. wind changing with height) and unworkable if B/S ratio is 5 or less. [Though hang-gliders can soar with smaller B/S values than can sailplanes.]
+						<p>If convective clouds are present, the actual B/S ratio will be larger than calculated here due to the neglect of 'cloudsuck'.</p>
+					</div>
+				</div>
+			</div>
+			<div class="sidebar-pane" id="wind">
+				<h1 class="sidebar-header">Wind<span class="sidebar-close"><i class="fa fa-close"></i></span></h1>
+				<ul class="rasp-layers">
+					<li><a href="#windsfc">Surface Wind</a></li>
+					<li><a href="#windblavg">Averaged wind in the BL</a></li>
+					<li><a href="#windbltop">BL Top Wind</a></li>
+					<li><a href="#blwindshear">BL vertical Wind Shear</a></li>
+					<li><a href="#wblmaxmin">Max Vertical Motion</a></li>
+					<li><a href="#wind1000">1000m Wind</a></li>
+					<li><a href="#wind2000">2000m Wind</a></li>
+				</ul>
+				<div class="explain">
+					<div class="windsfc">Wind, about 10 meters above the ground.</div>
+					<div class="windblavg">The speed and direction of the vector-averaged wind in the BL.
+						<p>This prediction can be misleading if there is a large change in wind direction through the BL (for a complex wind profile, no single number is an adequate descriptor!).</p>
+					</div>
+					<div class="windbltop">The speed and direction of the wind at the top of the BL.</div>
+				</div>
+			</div>
+
+			<div class="sidebar-pane" id="bl">
+				<h1 class="sidebar-header">Boundry Layer<span class="sidebar-close"><i class="fa fa-close"></i></span></h1>
+				<ul class="rasp-layers">
+					<li><a href="#pblh">BL Depth</a></li>
+					<li><a href="#pbltop">BL Top Altitude</a></li>
+				</ul>
+			</div>
+
+			<div class="sidebar-pane" id="clouds">
+				<h1 class="sidebar-header">Clouds<span class="sidebar-close"><i class="fa fa-close"></i></span></h1>
+				<ul class="rasp-layers">
+					<li><a href="#cfrach">High Altitude Clouds</a></li>
+					<li><a href="#cfracm">Medium Altitude Clouds</a></li>
+					<li><a href="#cfracl">Low Altitude Clouds</a></li>
+				</ul>
+			</div>
+
+			<div class="sidebar-pane" id="rain">
+				<h1 class="sidebar-header">Rain<span class="sidebar-close"><i class="fa fa-close"></i></span></h1>
+				<ul class="rasp-layers">
+					<li><a href="#raintot">Rain</a></li>
+				</ul>
+			</div>
+
+			<div class="sidebar-pane" id="misc">
+				<h1 class="sidebar-header">Misc.<span class="sidebar-close"><i class="fa fa-close"></i></span></h1>
+				<ul class="rasp-layers">
+					<li><a href="#tc2">2m Temperature</a></li>
+					<li><a href="#ter">Model Topography</a></li>
+					<li><a href="#slp">Sea Level Pressure</a></li>
+				</ul>
+			</div>
+
+			<div class="sidebar-pane" id="settings">
+				<h1 class="sidebar-header">Settings<span class="sidebar-close"><i class="fa fa-close"></i></span></h1>
+				<span>TODO: Allow to set settings</span>
+			</div>
+		</div>
+	</div>
+	<!-- Timeslider -->
+	<div id="timeslider">
+		<a href="#prev-day"><i class="fa fa-fast-backward"></i></a>
+		<a href="#prev-hour"><i class="fa fa-step-backward"></i></a>
+		<select class="day"></select>
+		<span class="hour"> - 13h</span>
+		<a href="#next-hour"><i class="fa fa-step-forward"></i></a>
+		<a href="#next-day"><i class="fa fa-fast-forward"></i></a>
+	</div>
+	<!-- Legend -->
+	<canvas id="legend"></canvas>
+	<!-- Container with Map and SlidePanel which contains AltiWind -->
+	<div class="container">
+		<!-- WindAlti -->
+		<div id="slide-panel" class="collapsed">
+			<a href="#" id="opener"><i class="fa fa-angle-right"></i></a>
+			<div id="content">
+				<canvas id="windalticanvas"></canvas>
+			</div>
+		</div>
+		<!-- Map -->
+		<div id="map"></div>
+	</div>
+
+</body>
+<script src="./js/mputil.js"></script>
+<script src="./js/legend.js"></script>
+<script src="./js/timecontrol.js"></script>
+<script src="./js/windalti.js"></script>
+<script src="./js/mp.js"></script>
+<script>
+
+  // Initialize components
+	MP.initialize();  // Map
+	MP.initializeSidebar();
+	MP.initializeSlidePanel();
+	TimeControl.initialize();
+	TimeControl.setHourRange(6, 22); // FIXME: calculate on localtime...
+
+	WindAlti.initialize(L.DomUtil.get("windalticanvas"));
+	Legend.initialize(L.DomUtil.get("legend"));
+
+	// Handle TimeChanges
+	TimeControl.addChangeListener(function(e) {
+		MP.updateRaspLayer();
+		if (e.detail.day.getDate() != e.detail.oldDay.getDate()) {
+			var date = TimeControl.formatDate(e.detail.day);
+			var run = MP.getDayRun()[date];
+			WindAlti.changeDay(date, run);
+		}
+	});
+
+
+	// initialize with call to status to update the Map and TimeControl
+	//MPUtil.httpGet("http://localhost:8080/test/status.json", function(res)   {
+	//var status = JSON.parse(res);
+	MPUtil.httpGetJsonP("https://data0.meteo-parapente.com/status.php", function(res) {
+		var status = res;
+		var dayrun = {};
+
+		for (i = 0; i < status.france.length; i++) {
+			var entry = status.france[i];
+			if (entry.status == 'complete') {
+				if (!dayrun[entry.day]) {
+					dayrun[entry.day] = entry.run;
+				}
+			}
+		}
+		MP.setDayRun(dayrun);
+		var days = Object.keys(dayrun);
+		TimeControl.setDays(days);
+	});
+</script>
+
+</html>

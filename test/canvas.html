@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Canvas Test</title>
+	<style>
+		.canvas-container {
+			width: 800px;
+			height: 425px;
+			border: 1px solid black;
+		}
+
+		#myCanvas {
+			width: 100%;
+			height: 100%;
+		}
+	</style>
+	<script src=".././js/mputil.js"></script>
+	<script src=".././js/legend.js"></script>
+	<script src=".././js/windalti.js"></script>
+</head>
+
+<body>
+	<div class="canvas-container">
+		<canvas id="myCanvas"></canvas>
+	</div>
+
+	<script>
+		var c = document.getElementById("myCanvas");
+		WindAlti.initialize(c);
+
+		var sq = {
+			domain: "france",
+			run: "2017012200",
+			places: "44.71717340316341,4.955444335937809",
+			//dates: "20170122;20170123",  // IMPORTANT: They have to be in the same run
+			dates: "20170122",
+			heures: "5;8;11;14;17;20",
+			params: "z;umet;vmet;ter;pblh;raintot;cfracl;cfracm;cfrach;cldfra"
+		};
+
+		// Multiple dates seem
+
+		//
+		MPUtil.httpGet("http://localhost:8080/test/windalti.json", function(res) {
+		//MPUtil.httpGet("http://localhost:8080/test/windaltimulti.json", function(res) {
+			var data = JSON.parse(res);
+		//MPUtil.httpGetJsonP("https://data0.meteo-parapente.com/json.php?" + MPUtil.queryString(sq), function(res)   {
+		//	var data = res;
+			//console.log(data);
+
+			WindAlti.setData(sq, data);
+			WindAlti.draw();
+
+		});
+
+	</script>
+</body>
+
+</html>
