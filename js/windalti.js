@@ -53,10 +53,32 @@ var WindAlti = (function() {
         setData: function(varSQ, varData) {
             res.sq = varSQ;
             res.data = varData;
-            // currently we support only 1 place and 1 date
-            res.dates = res.data[varSQ.places][varSQ.dates];
-            res.hours = Object.keys(res.dates);
-            res.ter = res.dates[res.hours[0]].ter;
+            res.places = res.data[varSQ.places];
+            res.dates = varSQ.dates.split(";");
+            //res.hours = Object.keys(res.dates);
+            var data = res.places[res.dates[0]]; // first date
+            var hi = Object.keys(data)[0]; // first hour of first date
+            res.ter = data[hi].ter;
+            //
+            var ht = 0;
+            for (i = 0; i < res.dates.length; i++) {
+                for (h in res.places[res.dates[i]]) {
+                    ht++;
+                }
+            }
+            res.totalHour = ht;
+        },
+
+        forEachEntry: function(fn) {
+            var hi = 0;
+            for (var di = 0; di < res.dates.length; di++) {
+                var date = res.dates[di]
+                for (hour in res.places[date]) {
+                    var data = res.places[date][hour];
+                    fn(di, hi, date, hour, data);
+                    hi++;
+                }
+            }
         },
 
         draw: function() {
@@ -65,7 +87,7 @@ var WindAlti = (function() {
             c.height = c.offsetHeight;
 
             var ctx = c.getContext("2d");
-            ctx.translate(0.5, 0.5);  // canvas is half pixel :-/
+            ctx.translate(0.5, 0.5); // canvas is half pixel :-/
 
             if (res.data) {
 
@@ -100,17 +122,28 @@ var WindAlti = (function() {
 
             ctx.font = "12px Verdana";
             ctx.textAlign = "center";
-            var part = width / res.hours.length;
-            for (var i = 0; i < res.hours.length; i++) {
-                var x = (part * i) | 0;
+            var part = width / res.totalHour;
+            var ldi = 0;
+            WindAlti.forEachEntry(function(di, hi, date, hour, data) {
+                // day separator
+                if (di != ldi) {
+                    var x = (part * hi) | 0;
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, height);
+                    ctx.stroke();
+                    ldi = di;
+                }
+                // hour separator
+                var x = (part * hi) | 0;
                 ctx.moveTo(x, 0);
                 ctx.lineTo(x, height - 10);
                 ctx.stroke();
 
-                // text
-                var text = res.hours[i] - tsOffsetH + "h";
+                // hour text
+                var text = hour - tsOffsetH + "h";
                 ctx.fillText(text, x + part / 2, height);
-            }
+
+            });
         },
 
         drawHeightScale: function(ctx, width, height) {
@@ -146,21 +179,18 @@ var WindAlti = (function() {
             var part = height / 4;
 
             // rects
-            var hourParts = width / res.hours.length;
-            for (var i = 0; i < res.hours.length; i++) {
-
-                var hi = res.hours[i];
-                var clfh = res.dates[hi].cfrach;
+            var hourParts = width / res.totalHour;
+            WindAlti.forEachEntry(function(di, hi, date, hour, data) {
+                var clfh = data.cfrach;
                 ctx.fillStyle = 'rgba(100, 100, 100, ' + clfh / 100 + ')';
-                ctx.fillRect(hourParts * i, 0, hourParts, part);
-                var clfm = res.dates[hi].cfracm;
+                ctx.fillRect(hourParts * hi, 0, hourParts, part);
+                var clfm = data.cfracm;
                 ctx.fillStyle = 'rgba(200, 200, 200, ' + clfm / 100 + ')';
-                ctx.fillRect(hourParts * i, part, hourParts, part);
-                var clfl = res.dates[hi].cfracl;
+                ctx.fillRect(hourParts * hi, part, hourParts, part);
+                var clfl = data.cfracl;
                 ctx.fillStyle = 'rgba(200, 200, 200, ' + clfl / 100 + ')';
-                ctx.fillRect(hourParts * i, part * 2, hourParts, part);
-            }
-
+                ctx.fillRect(hourParts * hi, part * 2, hourParts, part);
+            });
 
             // lines
             for (var i = 0; i < 4; i++) {
@@ -170,7 +200,6 @@ var WindAlti = (function() {
                 ctx.lineTo(width, y);
                 ctx.stroke();
             }
-
         },
 
         drawTerrain: function(ctx, width, height) {
@@ -187,13 +216,12 @@ var WindAlti = (function() {
             var terh = height / 4500 * res.ter;
             var ht = height - terh;
             ctx.fillStyle = 'rgba(255, 255, 0, 0.5)';
-            var hourParts = width / res.hours.length;
-            for (var i = 0; i < res.hours.length; i++) {
-                var hi = res.hours[i];
-                var pblh = height / 4500 * res.dates[hi].pblh;
+            var hourParts = width / res.totalHour;
+            WindAlti.forEachEntry(function(di, hi, date, hour, data) {
+                var pblh = height / 4500 * data.pblh;
                 var y = ht - pblh;
-                ctx.fillRect(hourParts * i, y, hourParts, ht - y);
-            }
+                ctx.fillRect(hourParts * hi, y, hourParts, ht - y);
+            });
         },
 
         drawWinds: function(ctx, width, height) {
@@ -201,24 +229,22 @@ var WindAlti = (function() {
             var DEG2RAD = Math.PI / 180.;
             ctx.font = "9px Verdana";
 
-            var hourParts = width / res.hours.length;
-            for (var i = 0; i < res.hours.length; i++) {
-                var hi = res.hours[i];
-                var z = res.dates[hi].z;
+            var hourParts = width / res.totalHour;
+            WindAlti.forEachEntry(function(di, hi, date, hour, data) {
                 var lh = 0;
-                for (var j = 0; j < z.length; j++) {
-                    if (z[j] > 4500) {
+                for (var j = 0; j < data.z.length; j++) {
+                    if (data.z[j] > 4500) {
                         break;
                     }
-                    var h = height / 4500 * z[j];
+                    var h = height / 4500 * data.z[j];
                     // don't overdraw
                     if (lh > 0 && h - lh < 8) {
                         continue;
                     }
                     lh = h;
 
-                    var umet = res.dates[hi].umet[j];
-                    var vmet = res.dates[hi].vmet[j];
+                    var umet = data.umet[j];
+                    var vmet = data.vmet[j];
 
                     var ws = Math.sqrt(umet * umet + vmet * vmet); // windspeed m/s
                     var wskmh = 3.6 * ws; // windspeed km/h
@@ -228,11 +254,11 @@ var WindAlti = (function() {
                     //console.log(wd);
 
                     ctx.fillStyle = "black";
-                    ctx.fillText(wskmh.toFixed(0), hourParts * i + 20, height - h + 5);
+                    ctx.fillText(wskmh.toFixed(0), hourParts * hi + 25, height - h + 5);
 
                     var aw = 7 + Math.min(ws, 9);
                     var ah = 7 + Math.min(ws, 9);
-                    var ax = hourParts * i + 6;
+                    var ax = hourParts * hi + 6;
                     var ay = height - h - (ah / 2);
 
                     var ar = wd * DEG2RAD;
@@ -249,7 +275,7 @@ var WindAlti = (function() {
 
                     ctx.restore();
                 }
-            }
+            });
         },
 
         drawArrow: function(ctx, width, height) {
@@ -283,29 +309,26 @@ var WindAlti = (function() {
 
         drawClouds: function(ctx, width, height) {
 
-            var hourParts = width / res.hours.length;
-            for (var i = 0; i < res.hours.length; i++) {
-                var hi = res.hours[i];
-                var z = res.dates[hi].z;
-                for (var j = 0; j < z.length; j++) {
-                    if (z[j] > 4500) {
+            var hourParts = width / res.totalHour;
+            WindAlti.forEachEntry(function(di, hi, date, hour, data) {
+                for (var j = 0; j < data.z.length; j++) {
+                    if (data.z[j] > 4500) {
                         break;
                     }
-                    var h = height / 4500 * z[j];
+                    var h = height / 4500 * data.z[j];
 
                     //ctx.fillRect(hourParts * i, height - h, 3, 2); // DEBUG Point
-                    var clf = res.dates[hi].cldfra[j];
+                    var clf = data.cldfra[j];
                     if (clf > 0) {
                         var s = 1;
-                        if (j < z.length - 1) {
-                            s = height / 4500 * z[j + 1];
+                        if (j < data.z.length - 1) {
+                            s = height / 4500 * data.z[j + 1];
                         }
                         ctx.fillStyle = 'rgba(200, 200, 200, ' + clf + ')';
-                        ctx.fillRect(hourParts * i + 1, height - h, hourParts - 2, (height - h) - (height - s));
+                        ctx.fillRect(hourParts * hi + 1, height - h, hourParts - 2, (height - h) - (height - s));
                     }
-
                 }
-            }
+            });
         }
 
     };
