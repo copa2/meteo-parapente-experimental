@@ -2,12 +2,15 @@ var WindAlti = (function() {
 
     var res = {};
 
-    var c;
+    var viewmodel = {
+      height: 4500               // default height on heightscale
+    };
 
     return {
 
         initialize: function(canvas) {
-            c = canvas;
+            viewmodel.canvas = canvas;
+            canvas.addEventListener("mousedown", this._onClick, false);
         },
 
         load: function(day, run, lat, lng, fn) {
@@ -67,6 +70,9 @@ var WindAlti = (function() {
                 }
             }
             res.totalHour = ht;
+
+            // reset
+            viewmodel.height = 4500;
         },
 
         forEachEntry: function(fn) {
@@ -83,6 +89,7 @@ var WindAlti = (function() {
 
         draw: function() {
 
+            var c = viewmodel.canvas;
             c.width = c.offsetWidth;
             c.height = c.offsetHeight;
 
@@ -154,9 +161,10 @@ var WindAlti = (function() {
 
             ctx.font = "12px Verdana";
             ctx.textAlign = "right";
-            var part = height / 9;
-            for (var i = 0; i < 10; i++) {
-                var text = 4500 - i * 500;
+            var pl = viewmodel.height / 500;
+            var part = height / pl;
+            for (var i = 0; i < pl+1; i++) {
+                var text = viewmodel.height - i * 500;
                 var y = (part * i) | 0;
                 ctx.fillText(text, width - 5, y + 3);
 
@@ -203,7 +211,7 @@ var WindAlti = (function() {
         },
 
         drawTerrain: function(ctx, width, height) {
-            var terh = height / 4500 * res.ter;
+            var terh = height / viewmodel.height * res.ter;
             ctx.fillStyle = "black";
             ctx.font = "9px Verdana";
             ctx.fillText(res.ter.toFixed(0) + " m", 5, height - terh + 10);
@@ -213,12 +221,12 @@ var WindAlti = (function() {
         },
 
         drawBL: function(ctx, width, height) {
-            var terh = height / 4500 * res.ter;
+            var terh = height / viewmodel.height * res.ter;
             var ht = height - terh;
             ctx.fillStyle = 'rgba(255, 255, 0, 0.5)';
             var hourParts = width / res.totalHour;
             WindAlti.forEachEntry(function(di, hi, date, hour, data) {
-                var pblh = height / 4500 * data.pblh;
+                var pblh = height / viewmodel.height * data.pblh;
                 var y = ht - pblh;
                 ctx.fillRect(hourParts * hi, y, hourParts, ht - y);
             });
@@ -233,10 +241,10 @@ var WindAlti = (function() {
             WindAlti.forEachEntry(function(di, hi, date, hour, data) {
                 var lh = 0;
                 for (var j = 0; j < data.z.length; j++) {
-                    if (data.z[j] > 4500) {
+                    if (data.z[j] > viewmodel.height) {
                         break;
                     }
-                    var h = height / 4500 * data.z[j];
+                    var h = height / viewmodel.height * data.z[j];
                     // don't overdraw
                     if (lh > 0 && h - lh < 8) {
                         continue;
@@ -312,23 +320,52 @@ var WindAlti = (function() {
             var hourParts = width / res.totalHour;
             WindAlti.forEachEntry(function(di, hi, date, hour, data) {
                 for (var j = 0; j < data.z.length; j++) {
-                    if (data.z[j] > 4500) {
+                    if (data.z[j] > viewmodel.height) {
                         break;
                     }
-                    var h = height / 4500 * data.z[j];
+                    var h = height / viewmodel.height * data.z[j];
 
                     //ctx.fillRect(hourParts * i, height - h, 3, 2); // DEBUG Point
                     var clf = data.cldfra[j];
                     if (clf > 0) {
                         var s = 1;
                         if (j < data.z.length - 1) {
-                            s = height / 4500 * data.z[j + 1];
+                            s = height / viewmodel.height * data.z[j + 1];
                         }
                         ctx.fillStyle = 'rgba(200, 200, 200, ' + clf + ')';
                         ctx.fillRect(hourParts * hi + 1, height - h, hourParts - 2, (height - h) - (height - s));
                     }
                 }
             });
+        },
+
+        _onClick: function(e) {
+
+          var rect = viewmodel.canvas.getBoundingClientRect();
+          var x = event.clientX - rect.left;
+          var y = event.clientY - rect.top;
+
+          if(res.data)
+            // check within bounds
+            if( 0 <= x && x <= 40 && 50 <= y && y <= viewmodel.canvas.height-80+50) {
+                WindAlti.changeHeightScale();
+            }
+        },
+
+        changeHeightScale: function() {
+          if(viewmodel.height == 4500) {
+            viewmodel.height = 10000;
+          } else if(viewmodel.height == 10000){
+            var maxpblh = 0;
+            WindAlti.forEachEntry(function(di,hi,date,hour,data) {
+              maxpblh = Math.max(maxpblh,data.pblh);
+            });
+            var maxheight = res.ter + maxpblh + 300;
+            viewmodel.height = maxheight + (500 - (maxheight % 500));
+          } else {
+            viewmodel.height = 4500;
+          }
+          WindAlti.draw();
         }
 
     };
