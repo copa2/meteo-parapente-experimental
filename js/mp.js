@@ -23,16 +23,15 @@ var MP = (function() {
             //'https://{s}-rasp.meteo-parapente.com/tiles/rasp.php/run/datetime/france/type/{z}/{x}/{y}/tile.png'
             var raspLayer = L.tileLayer(this.createDefaultRaspLayerTemplateUrl(), {
                 maxZoom: 18,
-                id: 'meteo-parapente.rasp',
-                opacity: 0.4
+                id: 'meteo-parapente.rasp'
             });
             model.raspLayer = raspLayer;
 
             model.map = L.map('map', {
                 center: [46.53619, 7.59155],
                 zoom: 8,
-                layers: [hillshade, osm, raspLayer],
-                //layers: [hillshade, raspLayer],
+                layers: [raspLayer, hillshade, osm],
+                //layers: [raspLayer, hillshade],
                 zoomControl: false
             });
 
