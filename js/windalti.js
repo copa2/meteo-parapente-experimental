@@ -99,14 +99,14 @@ var WindAlti = (function() {
             if (res.data) {
 
                 this.drawComponent(ctx, 40, c.height - 30, c.width - 50, 20, this.drawTimeScale);
-                this.drawComponent(ctx, 0, 50, 40, c.height - 80, this.drawHeightScale);
+                this.drawComponent(ctx, 0, 60, 40, c.height - 90, this.drawHeightScale);
                 this.drawComponent(ctx, 50, 0, c.width - 50, 20, this.drawLocalText);
-                this.drawComponent(ctx, 40, 25, c.width - 50, 30, this.drawCloudHML);
+                this.drawComponent(ctx, 40, 25, c.width - 50, 40, this.drawCloudHMLRain);
 
-                this.drawComponent(ctx, 40, 50, c.width - 50, c.height - 80, this.drawTerrain);
-                this.drawComponent(ctx, 40, 50, c.width - 50, c.height - 80, this.drawBL);
-                this.drawComponent(ctx, 40, 50, c.width - 50, c.height - 80, this.drawClouds);
-                this.drawComponent(ctx, 40, 50, c.width - 50, c.height - 80, this.drawWinds);
+                this.drawComponent(ctx, 40, 60, c.width - 50, c.height - 90, this.drawTerrain);
+                this.drawComponent(ctx, 40, 60, c.width - 50, c.height - 90, this.drawBL);
+                this.drawComponent(ctx, 40, 60, c.width - 50, c.height - 90, this.drawClouds);
+                this.drawComponent(ctx, 40, 60, c.width - 50, c.height - 90, this.drawWinds);
             }
         },
 
@@ -182,22 +182,28 @@ var WindAlti = (function() {
             ctx.fillText(text, 0, height);
         },
 
-        drawCloudHML: function(ctx, width, height) {
+        drawCloudHMLRain: function(ctx, width, height) {
             // 3 high,medium,low
-            var part = height / 4;
+            var part = height / 5;
 
             // rects
             var hourParts = width / res.totalHour;
             WindAlti.forEachEntry(function(di, hi, date, hour, data) {
                 var clfh = data.cfrach;
-                ctx.fillStyle = 'rgba(100, 100, 100, ' + clfh / 100 + ')';
+                ctx.fillStyle = clfh == "NaN" ? "coral" : 'rgba(100, 100, 100, ' + clfh / 100 + ')';
                 ctx.fillRect(hourParts * hi, 0, hourParts, part);
                 var clfm = data.cfracm;
-                ctx.fillStyle = 'rgba(200, 200, 200, ' + clfm / 100 + ')';
+                ctx.fillStyle = clfm == "NaN" ? "coral" : 'rgba(200, 200, 200, ' + clfm / 100 + ')';
                 ctx.fillRect(hourParts * hi, part, hourParts, part);
                 var clfl = data.cfracl;
-                ctx.fillStyle = 'rgba(200, 200, 200, ' + clfl / 100 + ')';
+                ctx.fillStyle = clfl == "NaN" ? "coral" : 'rgba(200, 200, 200, ' + clfl / 100 + ')';
                 ctx.fillRect(hourParts * hi, part * 2, hourParts, part);
+
+                // rain - overdraw into following data...
+                var rain = data.raintot; // mm
+                ctx.fillStyle = WindAlti.selectColor(rain, Legend.getRainColors());
+                ctx.fillRect(hourParts * hi, part * 3, hourParts, part);
+
             });
 
             // lines
@@ -277,7 +283,7 @@ var WindAlti = (function() {
                     ctx.translate(ax + aw / 2, ay + ah / 2);
                     ctx.rotate(ar);
                     ctx.translate(-aw / 2, -ah / 2);
-                    ctx.fillStyle = WindAlti.selectWindColor(ws);
+                    ctx.fillStyle = WindAlti.selectColor(ws, Legend.getWindSpeedColors());
                     WindAlti.drawArrow(ctx, aw, ah);
                     ctx.translate(-(-aw / 2), -(-ah / 2));
 
@@ -300,19 +306,20 @@ var WindAlti = (function() {
 
         },
 
-        selectWindColor: function(wsms) {
-
-            // TODO: Create gradient...
-            var WIND_SPEED_COLORS = Legend.getWindSpeedColors();
-            for (var i = 0; i < WIND_SPEED_COLORS.length - 1; i++) {
-                var wsl = WIND_SPEED_COLORS[i];
-                var wsh = WIND_SPEED_COLORS[i + 1];
-                if (wsl[0] < wsms && wsms < wsh[0]) {
-                    return "rgba(" + wsl[1] + "," + wsl[2] + "," + wsl[3] + "," + wsl[4] + ")";
-                }
-            }
-            var wsl = WIND_SPEED_COLORS[WIND_SPEED_COLORS.length - 1];
-            return "rgba(" + wsl[1] + "," + wsl[2] + "," + wsl[3] + "," + wsl[4] + ")";
+        selectColor: function(value, colors) {
+          if(value == "NaN") {
+            return "coral";
+          }
+          // TODO: Create gradient...
+          for (var i = 0; i < colors.length - 1; i++) {
+              var l = colors[i];
+              var h = colors[i + 1];
+              if (l[0] <= value && value < h[0]) {
+                  return "rgba(" + l[1] + "," + l[2] + "," + l[3] + "," + l[4] + ")";
+              }
+          }
+          var c = colors[colors.length - 1];
+          return "rgba(" + c[1] + "," + c[2] + "," + c[3] + "," + c[4] + ")";
         },
 
         drawClouds: function(ctx, width, height) {
@@ -346,8 +353,8 @@ var WindAlti = (function() {
           var y = event.clientY - rect.top;
 
           if(res.data)
-            // check within bounds
-            if( 0 <= x && x <= 40 && 50 <= y && y <= viewmodel.canvas.height-80+50) {
+            // check within bounds (see draw)
+            if( 0 <= x && x <= 40 && 60 <= y && y <= viewmodel.canvas.height-90+60) {
                 WindAlti.changeHeightScale();
             }
         },

@@ -104,7 +104,8 @@ var Legend = (function() {
     ];
 
     var RAIN_COLORS = [
-        [0, 204, 204, 204, 255],
+        //[0, 204, 204, 204, 255],
+        [0, 204, 204, 204, 0],
         [0.1, 170, 255, 255, 255],
         [1, 85, 213, 255, 255],
         [2, 42, 170, 255, 255],
@@ -267,6 +268,10 @@ var Legend = (function() {
 
         getWindSpeedColors: function() {
             return WIND_SPEED_COLORS;
+        },
+
+        getRainColors: function() {
+          return RAIN_COLORS;
         }
 
     };
