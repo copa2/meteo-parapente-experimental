@@ -6,7 +6,10 @@
 	<style>
 		.canvas-container {
 			width: 800px;
+			height: 600px;
+			/*
 			height: 425px;
+			*/
 			border: 1px solid black;
 		}
 
@@ -18,6 +21,7 @@
 	<script src=".././js/mputil.js"></script>
 	<script src=".././js/legend.js"></script>
 	<script src=".././js/windalti.js"></script>
+	<script src=".././js/sounding.js"></script>
 </head>
 
 <body>
@@ -26,6 +30,7 @@
 	</div>
 
 	<script>
+/*
 		var c = document.getElementById("myCanvas");
 		WindAlti.initialize(c);
 
@@ -51,6 +56,32 @@
 
 			WindAlti.setData(sq, data);
 			WindAlti.draw();
+
+		});
+*/
+		// -------------------------------------------------------------------------
+		var c = document.getElementById("myCanvas");
+		Sounding.initialize(c);
+
+		var sq = {
+			domain: "france",
+			run: "2017012400",
+			places: "46.82121955058567,6.9384765624997655",
+			dates: "20170124",
+			heures: "12",
+			params: "tc;td;z;ter;umet;vmet;p;pblh"
+		};
+
+		//
+		//MPUtil.httpGet("http://localhost:8080/test/sounding.json", function(res) {
+		MPUtil.httpGet("sounding.json", function(res) {
+			var data = JSON.parse(res);
+		//MPUtil.httpGetJsonP("https://data0.meteo-parapente.com/json.php?" + MPUtil.queryString(sq), function(res)   {
+		//	var data = res;
+			//console.log(data);
+
+			Sounding.setData(sq, data);
+			Sounding.draw();
 
 		});
 
