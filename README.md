@@ -13,9 +13,7 @@ is providing its data free and in the same format.
 Its meant to experiment with data which is provided from meteo-parapente.
 
 It has some missing futures like:
-* Soundings
 * Arome data
-* ...
 
 #### TODO
 * Legend
@@ -27,10 +25,10 @@ It has some missing futures like:
 * WindAlti
  * next 3 Days
  * onClick data (wind,pblh/wstar,clouds)
+* Meteogramm
 * TimeControl
  * change date with sliding left-right
-* Settings
- * Save lat,lng,zoom as prefered property in db
+* i18n
 
 #### Licence
 Code licenced MIT.

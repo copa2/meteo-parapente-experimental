@@ -2,7 +2,7 @@ var MP = (function() {
 
     var model = {
         dayrun: {},
-        type: 'wstar'
+        type: 'pbltop'
     };
 
     return {
@@ -57,9 +57,26 @@ var MP = (function() {
         },
 
         updateRaspLayer: function() {
-            var run = model.dayrun[TimeControl.formatDate(TimeControl.getDay())];
-            var datetime = TimeControl.formatDate(TimeControl.getDay()) + TimeControl.formatTime(TimeControl.getHour());
+            var day = model.timecontrol.getDay();
+            var run = model.dayrun[TimeControl.formatDate(day)];
+            var datetime = TimeControl.formatDate(day) + TimeControl.formatTime(TimeControl.localToUTC(model.timecontrol.getHour()));
             model.raspLayer.setUrl(this.createRaspLayerTemplateUrl(run, datetime, model.type));
+        },
+
+        setSoundingView(sounding) {
+          model.sounding = sounding;
+        },
+
+        setWindAltiView(windalti) {
+          model.windalti = windalti;
+        },
+
+        setLegend(legend) {
+          model.legend = legend;
+        },
+
+        setTimeControl(timecontrol) {
+          model.timecontrol = timecontrol;
         },
 
         onMapClick: function(e) {
@@ -71,12 +88,16 @@ var MP = (function() {
             L.DomUtil.removeClass(sp, "collapsed");
 
             // Load and show WindAlti data
-            var date = TimeControl.formatDate(TimeControl.getDay());
+            var date = TimeControl.formatDate(model.timecontrol.getDay());
             var run = model.dayrun[date];
-            WindAlti.load(date, run, e.latlng.lat, e.latlng.lng, function(lat, lng) {
+            model.windalti.load(date, run, e.latlng.lat, e.latlng.lng, function(lat, lng) {
                 // update marker position
                 MP.setMarker(lat, lng);
             });
+
+            // Load and show Sounding data (even if not visible FIXME)
+            var hour = model.timecontrol.getHour();
+            model.sounding.load(date, run, hour, e.latlng.lat, e.latlng.lng);
         },
 
         setMarker: function(lat, lng) {
@@ -96,7 +117,7 @@ var MP = (function() {
             var today = new Date();
             var run = TimeControl.formatDate(TimeControl.addDays(today, -3)) + '06';
             var datetime = TimeControl.formatDate(today) + TimeControl.formatTime(13);
-            return this.createRaspLayerTemplateUrl(run, datetime, 'wstar');
+            return this.createRaspLayerTemplateUrl(run, datetime, model.type);
         },
 
         // -------------------------------------------------------------------------
@@ -116,7 +137,7 @@ var MP = (function() {
         onClickChangeLayer: function() {
             var type = this.getAttribute("href").substring(1);
             MP.setRaspLayerType(type);
-            Legend.selectLayer(type);
+            legend.selectLayer(type);
             // make visible move this code to on hover
             var sb = L.DomUtil.get('sidebar')
             var rasplayertypes = sb.querySelectorAll('ul.rasp-layers > li > a')
@@ -145,11 +166,38 @@ var MP = (function() {
             sp.addEventListener('transitionend', function(event) {
                 MP.getMap().invalidateSize();
             }, false);
+
+            //
+            var switchlayer = L.DomUtil.get('switchlayer');
+            L.DomEvent.on(switchlayer, "click", L.DomEvent.preventDefault).on(switchlayer, "click", this.onClickChangeView);
         },
 
         toggleSlidePanel: function(e) {
             var sp = L.DomUtil.get('slide-panel');
             L.DomUtil.hasClass(sp, "collapsed") ? L.DomUtil.removeClass(sp, "collapsed") : L.DomUtil.addClass(sp, "collapsed");
+        },
+
+        // Toggle between WindAlti/Sounding
+        onClickChangeView: function() {
+          // problems with css so do it here
+          var wac = L.DomUtil.get('windalticanvas');
+          var sc = L.DomUtil.get('soundingcanvas');
+
+          if(wac.style.display == "none") {
+            wac.width = sc.width;
+            wac.height = sc.height;
+            wac.style.display = "block";
+            sc.style.display = "none";
+            windalti.draw();
+            sounding.setVisible(false);
+          } else if(sc.style.display == "none") {
+            sc.width = wac.width;
+            sc.height = wac.height;
+            sc.style.display = "block";
+            wac.style.display = "none";
+            sounding.setVisible(true);
+          }
+
         }
 
     };

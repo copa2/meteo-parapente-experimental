@@ -39,9 +39,11 @@
 				<li><a href="#misc" role="tab"><i class="wi wi-na" title="Misc."></i></a></li>
 			</ul>
 
+			<!--
 			<ul role="tablist">
 				<li><a href="#settings" role="tab"><i class="fa fa-gear"></i></a></li>
 			</ul>
+			-->
 		</div>
 
 		<!-- Tab panes -->
@@ -50,7 +52,12 @@
 				<h1 class="sidebar-header">meteo-parapente<span class="sidebar-close"><i class="fa fa-close"></i></span>
                 </h1>
 
-				<p>Some explanation about the site and other html you want to provide...</p>
+				<p>Expermiental implementation for meteo-parapente usable on a mobile phone.
+					 See <a href="https://meteo-parapente.com" target="_blank">https://meteo-parapente</a>
+				</p>
+				<p>This is a experiment and works as long as meteo-parapente
+				   is providing its data free and in the same format.
+				</p>
 
 			</div>
 
@@ -88,6 +95,19 @@
 						<p>This prediction can be misleading if there is a large change in wind direction through the BL (for a complex wind profile, no single number is an adequate descriptor!).</p>
 					</div>
 					<div class="windbltop">The speed and direction of the wind at the top of the BL.</div>
+					<div class="blwindshear">The vertical change in wind through the BL, specifically the magnitude of the vector wind difference between the top and bottom of the BL.
+						<p>Note that this represents vertical wind shear and does not indicate so-called 'shear lines' (which are horizontal changes of wind speed/direction).</p>
+					</div>
+					<div class="wblmaxmin">Maximum grid-area-averaged extensive upward or downward motion within the BL as created by horizontal wind convergence.
+						<p>Positive convergence is associated with local small-scale convergence lines
+							(often called 'shear lines' by pilots, which are horizontal changes of wind speed/direction)
+							- however, the actual size of such features is much smaller than can be resolved by the model so only stronger ones
+							will be forecast and their predictions are subject to much error. If CAPE is also large, thunderstorms can be triggered.</p>
+						<p>Negative convergence (divergence) produces subsiding vertical motion, creating low-level inversions which limit thermalling heights.
+							This parameter can be noisy, so users should be wary.</p>
+					</div>
+					<div class="wind1000">Wind, 1000 meters above the ground.</div>
+					<div class="wind2000">Wind, 2000 meters above the ground.</div>
 				</div>
 			</div>
 
@@ -97,6 +117,20 @@
 					<li><a href="#pblh">BL Depth</a></li>
 					<li><a href="#pbltop">BL Top Altitude</a></li>
 				</ul>
+				<div class="explain">
+					<div class="pblh">Depth of the layer mixed by thermals or (vertical) wind shear.
+						<p>This parameter can be useful in determining which flight direction allows better thermalling conditions when average surface elevations vary greatly in differing directions.
+							(But the same cautions mentioned under Height of BL Top also apply.)
+	            It is also an important determinant of thermals strength (as is the Surface Heating)</p>
+					</div>
+					<div class="pbltop">Height of the top of the mixing layer, which for thermal convection is the average top of a dry thermal.
+						<p>Over flat terrain, maximum thermalling heights will be lower due to the glider descent rate and other factors.
+							In the presence of clouds (which release additional buoyancy aloft, creating cloudsuck) the updraft top will be above this forecast, but the maximum thermalling height will then be limited by the cloud base.
+							Further, when the mixing results from shear turbulence rather than thermal mixing this parameter is not useful for glider flying.
+							NB: this BL Top is not the height where the Thermal Index (TI) is zero, which is a criteria used by many simple determinations of the BL top - instead, the RASP BL Top uses a more sophisticated BL Top criteria based on turbulent fluxes
+						</p>
+						</div>
+				</div>
 			</div>
 
 			<div class="sidebar-pane" id="clouds">
@@ -113,6 +147,9 @@
 				<ul class="rasp-layers">
 					<li><a href="#raintot">Rain</a></li>
 				</ul>
+				<div class="explain">
+						<div class="raintot">All of the rain, whatever its origin accumulated over the last hour</div>
+				</div>
 			</div>
 
 			<div class="sidebar-pane" id="misc">
@@ -123,11 +160,12 @@
 					<li><a href="#slp">Sea Level Pressure</a></li>
 				</ul>
 			</div>
-
+<!--
 			<div class="sidebar-pane" id="settings">
 				<h1 class="sidebar-header">Settings<span class="sidebar-close"><i class="fa fa-close"></i></span></h1>
 				<span>TODO: Allow to set settings</span>
 			</div>
+-->
 		</div>
 	</div>
 	<!-- Timeslider -->
@@ -147,7 +185,9 @@
 		<div id="slide-panel" class="collapsed">
 			<a href="#" id="opener"><i class="fa fa-angle-right"></i></a>
 			<div id="content">
+				<a id=switchlayer href="#" ><i class="fa fa-exchange"></i></a>
 				<canvas id="windalticanvas"></canvas>
+				<canvas id="soundingcanvas" style="display:none"></canvas>
 			</div>
 		</div>
 		<!-- Map -->
@@ -156,9 +196,11 @@
 
 </body>
 <script src="./js/mputil.js"></script>
+<script src="./js/meteomath.js"></script>
 <script src="./js/legend.js"></script>
 <script src="./js/timecontrol.js"></script>
 <script src="./js/windalti.js"></script>
+<script src="./js/sounding.js"></script>
 <script src="./js/mp.js"></script>
 <script>
 
@@ -166,20 +208,34 @@
 	MP.initialize();  // Map
 	MP.initializeSidebar();
 	MP.initializeSlidePanel();
-	TimeControl.initialize();
-	TimeControl.setHourRange(6, 22); // FIXME: calculate on localtime...
 
-	WindAlti.initialize(L.DomUtil.get("windalticanvas"));
-	Legend.initialize(L.DomUtil.get("legend"));
+	var timecontrol = new TimeControl();
+	timecontrol.initialize();
+	timecontrol.setHourRange(6, 22); // FIXME: calculate on localtime...
+	MP.setTimeControl(timecontrol);
+
+	var legend = new Legend();
+	legend.initialize(L.DomUtil.get("legend"));
+	MP.setLegend(legend);
+
+	var windalti = new WindAlti();
+	windalti.initialize(L.DomUtil.get("windalticanvas"));
+	MP.setWindAltiView(windalti);
+	var sounding = new Sounding();
+	sounding.initialize(L.DomUtil.get("soundingcanvas"));
+	MP.setSoundingView(sounding);
 
 	// Handle TimeChanges
-	TimeControl.addChangeListener(function(e) {
+	timecontrol.addChangeListener(function(e) {
 		MP.updateRaspLayer();
+
+		var date = TimeControl.formatDate(e.detail.day);
+		var run = MP.getDayRun()[date];
 		if (e.detail.day.getDate() != e.detail.oldDay.getDate()) {
-			var date = TimeControl.formatDate(e.detail.day);
-			var run = MP.getDayRun()[date];
-			WindAlti.changeDay(date, run);
+			windalti.changeDay(date, run);
 		}
+		var hour = timecontrol.getHour();
+		sounding.changeHour(date, run, hour);
 	});
 
 
@@ -200,8 +256,31 @@
 		}
 		MP.setDayRun(dayrun);
 		var days = Object.keys(dayrun);
-		TimeControl.setDays(days);
+		timecontrol.setDays(days);
 	});
+
+
+	// Optional save last position to given zoom level
+	if(typeof(Storage) !== 'undefined') {
+
+		// Detect changes
+		MP.getMap().on('moveend', function(e) {
+			let zoom = MP.getMap().getZoom();
+	    if(zoom < 10) {
+				let center = MP.getMap().getCenter();
+				let l = {lat: center.lat, lng: center.lng, zoom: zoom };
+				localStorage.setItem('lastPosition', JSON.stringify(l));
+			}
+		});
+
+		// set position when available
+		let lp = localStorage.getItem('lastPosition');
+		if(lp) {
+			let l = JSON.parse(lp);
+			MP.getMap().setView(L.latLng(l.lat, l.lng), l.zoom);
+		}
+	}
+
 </script>
 
 </html>

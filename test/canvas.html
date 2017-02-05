@@ -18,10 +18,12 @@
 			height: 100%;
 		}
 	</style>
-	<script src=".././js/mputil.js"></script>
-	<script src=".././js/legend.js"></script>
-	<script src=".././js/windalti.js"></script>
-	<script src=".././js/sounding.js"></script>
+	<script src="../js/meteomath.js"></script>
+	<script src="../js/mputil.js"></script>
+	<script src="../js/legend.js"></script>
+	<script src="../js/timecontrol.js"></script>
+	<script src="../js/windalti.js"></script>
+	<script src="../js/sounding.js"></script>
 </head>
 
 <body>
@@ -30,16 +32,17 @@
 	</div>
 
 	<script>
-/*
+
 		var c = document.getElementById("myCanvas");
-		WindAlti.initialize(c);
+		const wa = new WindAlti();
+		wa.initialize(c);
 
 		var sq = {
 			domain: "france",
 			run: "2017012200",
 			places: "44.71717340316341,4.955444335937809",
-			//dates: "20170122;20170123",  // IMPORTANT: They have to be in the same run
-			dates: "20170122",
+			dates: "20170122;20170123",  // IMPORTANT: They have to be in the same run
+			//dates: "20170122",
 			heures: "5;8;11;14;17;20",
 			params: "z;umet;vmet;ter;pblh;raintot;cfracl;cfracm;cfrach;cldfra"
 		};
@@ -47,21 +50,23 @@
 		// Multiple dates seem
 
 		//
-		MPUtil.httpGet("http://localhost:8080/test/windalti.json", function(res) {
-		//MPUtil.httpGet("http://localhost:8080/test/windaltimulti.json", function(res) {
+		//MPUtil.httpGet("http://localhost:8080/test/windalti.json", function(res) {
+		MPUtil.httpGet("http://localhost:8080/test/windaltimulti.json", function(res) {
 			var data = JSON.parse(res);
 		//MPUtil.httpGetJsonP("https://data0.meteo-parapente.com/json.php?" + MPUtil.queryString(sq), function(res)   {
 		//	var data = res;
 			//console.log(data);
 
-			WindAlti.setData(sq, data);
-			WindAlti.draw();
+			wa.setData(sq, data);
+			wa.draw();
 
 		});
-*/
+
 		// -------------------------------------------------------------------------
+/*
 		var c = document.getElementById("myCanvas");
-		Sounding.initialize(c);
+		const s = new Sounding();
+		s.initialize(c);
 
 		var sq = {
 			domain: "france",
@@ -80,11 +85,11 @@
 		//	var data = res;
 			//console.log(data);
 
-			Sounding.setData(sq, data);
-			Sounding.draw();
+			s.setData(sq, data);
+			s.draw();
 
 		});
-
+*/
 	</script>
 </body>
 
