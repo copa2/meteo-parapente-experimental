@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+	<title>Map test</title>
+
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
+	<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
+  <style>
+
+  html, body {
+      font-family: sans-serif;
+      height: 100%;
+      width: 100%;
+  }
+
+  #map {
+      width: auto;
+      height: 100%;
+      overflow: hidden;
+  }
+
+    #timeslider {
+      position: absolute;
+      font-family: sans-serif;
+      font-size: 0.85em;
+      left: 100px;
+      bottom: 4px;
+      width: 500px;
+      background-color: rgba(220, 220, 220, 0.7);
+      border: 1px solid rgba(0, 0, 0, .2);
+      box-shadow: 0 0 1px rgba(0, 0, 0, .65);
+      z-index: 700;
+    }
+
+    #timeslider:hover .timehour {
+      opacity: 1;
+      transition: opacity 0.2s ease-in-out;
+    }
+
+    .daycontainer {
+      display: flex;
+      width: 100%;
+      /*border: 1px solid red;*/
+    }
+
+    .daycontainer > div {
+      flex-grow: 1;
+      height: 20px;
+      text-align: center;
+      user-select: none;
+    }
+
+    .daycontainer > div:not(:first-of-type) {
+      border-left: 1px solid black;
+    }
+
+    .progress {
+      background-color: orange;
+      width: 1px;  /* calculate on time */
+      height: 4px;
+      border: 1px solid orange;
+    }
+
+    .timehour {
+      opacity: 0;
+      transition: opacity 2s ease-in-out;
+      position: absolute;
+      top: -24px;
+      width: 44px;
+      margin-left: -22px;
+      line-height: 1.3em;
+      text-align: center;
+      border-radius: 2px;
+      border: 2px solid rgba(0, 0, 0, .2);
+      background-color: rgba(255, 255, 255, 1);
+      z-index: 700;
+    }
+
+
+    </style>
+</head>
+
+<body>
+
+
+		<!-- Map -->
+		<div id="map"></div>
+
+    <!-- timeslider -->
+    <div id="timeslider">
+      <div class="timehour">13:00</div>
+      <div class="progress"></div>
+      <div class="daycontainer">
+        <!-- div with days -->
+      </div>
+    </div>
+
+</body>
+<script src="../js/mputil.js"></script>
+<script src="../js/timeslider.js"></script>
+<script>
+  var mymap = L.map('map').setView([51.505, -0.09], 13);
+
+
+  L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
+    maxZoom: 18,
+  }).addTo(mymap);
+
+  // TimeSlider
+  const days = ["20170205","20170206","20170207","20170208","20170209"];
+  var timeslider = new TimeSlider(document.getElementById('timeslider'));
+  timeslider.setDays(days);
+  timeslider.selectDate(new Date());
+  /*
+  const ts = document.getElementById('timeslider');
+  const tsprogress = ts.getElementsByClassName('progress')[0];
+  const tstimehour = ts.getElementsByClassName('timehour')[0];
+  const parentOffsetLeft = ts.offsetLeft;
+  const hour = [6,22];
+  const hoursPerDay = hour[1]-hour[0];
+  console.log(tsprogress);
+  var pressed = false;
+  ts.onmousedown = function(e) {
+      if(e.which === 1) {
+        updateSlider(e);
+        pressed = true;
+      }
+  }
+  ts.onmouseup = function(e) {
+    if(e.which === 1) {
+      pressed = false;
+      updateTime(e);
+    }
+  }
+  //ts.onmouseout = function(e) { pressed = false;}
+  //ts.onmousein = function(e) { if(e.which === 1) pressed = true;}
+  ts.onmousemove = function(e) {
+    if(pressed) {
+      updateSlider(e);
+    }
+   }
+
+  function updateSlider(e) {
+    var x = e.pageX - parentOffsetLeft;
+    tsprogress.style.width = x + "px";
+    tstimehour.style.left = x + "px";
+    const h = hour[0] + (hoursPerDay+1)/e.target.offsetWidth*e.offsetX;
+    tstimehour.innerHTML = h.toFixed(0) +":00";
+  }
+  function updateTime(e) {
+    // end of sliding, update timeslider
+
+    const v = hour[0] + (hoursPerDay+1)/e.target.offsetWidth*e.offsetX;
+    console.log(v.toFixed(0));
+
+  }
+  */
+
+</script>
+
+</html>

@@ -57,10 +57,15 @@ var MP = (function() {
         },
 
         updateRaspLayer: function() {
+          /*
             var day = model.timecontrol.getDay();
             var run = model.dayrun[TimeControl.formatDate(day)];
             var datetime = TimeControl.formatDate(day) + TimeControl.formatTime(TimeControl.localToUTC(model.timecontrol.getHour()));
-            model.raspLayer.setUrl(this.createRaspLayerTemplateUrl(run, datetime, model.type));
+          */
+           var day = model.timeslider.getDay();
+           var run = model.dayrun[day];
+           var datetime = day + TimeControl.formatTime(TimeControl.localToUTC(model.timeslider.getHour()));
+           model.raspLayer.setUrl(this.createRaspLayerTemplateUrl(run, datetime, model.type));
         },
 
         setSoundingView(sounding) {
@@ -79,6 +84,10 @@ var MP = (function() {
           model.timecontrol = timecontrol;
         },
 
+        setTimeSlider(timeslider) {
+          model.timeslider = timeslider;
+        },
+
         onMapClick: function(e) {
             // set a marker on click position
             MP.setMarker(e.latlng.lat, e.latlng.lng);
@@ -88,7 +97,8 @@ var MP = (function() {
             L.DomUtil.removeClass(sp, "collapsed");
 
             // Load and show WindAlti data
-            var date = TimeControl.formatDate(model.timecontrol.getDay());
+            //var date = TimeControl.formatDate(model.timecontrol.getDay());
+            var date = model.timeslider.getDay();
             var run = model.dayrun[date];
             model.windalti.load(date, run, e.latlng.lat, e.latlng.lng, function(lat, lng) {
                 // update marker position
@@ -96,7 +106,8 @@ var MP = (function() {
             });
 
             // Load and show Sounding data (even if not visible FIXME)
-            var hour = model.timecontrol.getHour();
+            //var hour = model.timecontrol.getHour();
+            var hour = model.timeslider.getHour();
             model.sounding.load(date, run, hour, e.latlng.lat, e.latlng.lng);
         },
 

@@ -168,7 +168,7 @@
 -->
 		</div>
 	</div>
-	<!-- Timeslider -->
+	<!-- Timecontrol
 	<div id="timeslider">
 		<a href="#prev-day"><i class="fa fa-fast-backward"></i></a>
 		<a href="#prev-hour"><i class="fa fa-step-backward"></i></a>
@@ -176,6 +176,15 @@
 		<span class="hour"> - 13h</span>
 		<a href="#next-hour"><i class="fa fa-step-forward"></i></a>
 		<a href="#next-day"><i class="fa fa-fast-forward"></i></a>
+	</div>
+  -->
+	<!-- TimeSlider -->
+	<div id="timeslider">
+		<div class="timehour">13:00</div>
+		<div class="progress"></div>
+		<div class="daycontainer">
+			<!-- div with days -->
+		</div>
 	</div>
 	<!-- Legend -->
 	<canvas id="legend"></canvas>
@@ -199,6 +208,7 @@
 <script src="./js/meteomath.js"></script>
 <script src="./js/legend.js"></script>
 <script src="./js/timecontrol.js"></script>
+<script src="./js/timeslider.js"></script>
 <script src="./js/windalti.js"></script>
 <script src="./js/sounding.js"></script>
 <script src="./js/mp.js"></script>
@@ -209,10 +219,13 @@
 	MP.initializeSidebar();
 	MP.initializeSlidePanel();
 
-	var timecontrol = new TimeControl();
-	timecontrol.initialize();
-	timecontrol.setHourRange(6, 22); // FIXME: calculate on localtime...
-	MP.setTimeControl(timecontrol);
+	//var timecontrol = new TimeControl();
+	//timecontrol.initialize();
+	//timecontrol.setHourRange(6, 22); // FIXME: calculate on localtime...
+	//MP.setTimeControl(timecontrol);
+	var timeslider = new TimeSlider(L.DomUtil.get('timeslider'));
+	timeslider.setHourRange([6,22]);  // FIXME: calculate on localtime...
+	MP.setTimeSlider(timeslider);
 
 	var legend = new Legend();
 	legend.initialize(L.DomUtil.get("legend"));
@@ -226,6 +239,7 @@
 	MP.setSoundingView(sounding);
 
 	// Handle TimeChanges
+	/*
 	timecontrol.addChangeListener(function(e) {
 		MP.updateRaspLayer();
 
@@ -235,6 +249,18 @@
 			windalti.changeDay(date, run);
 		}
 		var hour = timecontrol.getHour();
+		sounding.changeHour(date, run, hour);
+	});
+	*/
+	timeslider.addChangeListener(function(e) {
+		MP.updateRaspLayer();
+
+		var date = e.detail.day;
+		var run = MP.getDayRun()[date];
+		if (e.detail.day != e.detail.oldDay) {
+			windalti.changeDay(date, run);
+		}
+		var hour = timeslider.getHour(); // fix local to utc? and format?
 		sounding.changeHour(date, run, hour);
 	});
 
@@ -256,7 +282,9 @@
 		}
 		MP.setDayRun(dayrun);
 		var days = Object.keys(dayrun);
-		timecontrol.setDays(days);
+		//timecontrol.setDays(days);
+		timeslider.setDays(days);
+		timeslider.selectDate(new Date());
 	});
 
 
