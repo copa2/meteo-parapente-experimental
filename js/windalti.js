@@ -145,7 +145,7 @@ class WindAlti {
             ctx.stroke();
 
             // hour text
-            var text = hour - TimeControl.tsOffsetH + "h";
+            var text = hour - TimeSlider.tsOffsetH + "h";
             ctx.fillText(text, x + part / 2, height);
 
         });

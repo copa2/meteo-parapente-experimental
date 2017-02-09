@@ -90,7 +90,7 @@ class Sounding {
         // REVISIT: Probably merge data aggregation for WindAlti and Sounding
         // instead of different calls.
 
-        hour = TimeControl.localToUTC(hour);
+        hour = TimeSlider.localToUTC(hour);
         // RASP
         return {
             domain: "france",

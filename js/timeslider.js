@@ -7,6 +7,7 @@ class TimeSlider {
         timehour: ts.getElementsByClassName('timehour')[0],
         daycontainer: ts.getElementsByClassName('daycontainer')[0],
         parentOffsetLeft: ts.offsetLeft,
+        daywidth: 160, // FIXME
         pressed: false
       };
       this.model = {
@@ -19,9 +20,17 @@ class TimeSlider {
       this.hoursPerDay = this.model.hours[1]-this.model.hours[0]+1;
 
       // register events
-      ts.onmousedown = this.onMouseDown.bind(this);
-      ts.onmouseup = this.onMouseUp.bind(this);
-      ts.onmousemove = this.onMouseMove.bind(this);
+      ts.addEventListener("mousedown", this.onMouseDown.bind(this));
+      ts.addEventListener("mouseup", this.onMouseUp.bind(this));
+      ts.addEventListener("mousemove", this.onMouseMove.bind(this));
+      this.viewmodel.daycontainer.addEventListener("scroll", this.onScroll.bind(this));
+
+      var debounceUpdateTime = MPUtil.debounce(this.updateTime.bind(this),500);
+      this.viewmodel.daycontainer.addEventListener("scroll", debounceUpdateTime);
+      // touch is another world...
+      //ts.addEventListener("touchstart", this.onMouseDown.bind(this));
+      //ts.addEventListener("touchend", this.onMouseUp.bind(this));
+      //ts.addEventListener("touchmove", this.onMouseMove.bind(this));
 
     }
 
@@ -40,8 +49,25 @@ class TimeSlider {
             let d = TimeSlider.parseDate(key);
             const dele = document.createElement("div");
             dele.day = key;
-            dele.innerHTML = dayNames[d.getDay()] +" "+ d.getDate();
+            //dele.innerHTML = dayNames[d.getDay()] +" "+ d.getDate();
+
+            // hours
+            const span = document.createElement("span");
+            span.className += "hours";
+            dele.appendChild(span);
+            // 8x20=160px
+            // reconsider on number of hours what is the best and which size
+            // till 160px
+            const dd = (this.hoursPerDay-1)/8;
+            for(let j = 0; j < 8; j++){
+              const span2 = document.createElement("span");
+              span2.innerHTML = j*dd+this.model.hours[0]+1;
+              span.appendChild(span2);
+            }
             daycontainer.appendChild(dele);
+            const ds = document.createElement("span");
+            ds.innerHTML = dayNames[d.getDay()] +" "+ d.getDate();
+            dele.appendChild(ds);
         }
     }
 
@@ -59,11 +85,11 @@ class TimeSlider {
           break;
         }
       }
-      const daywidth = this.viewmodel.daycontainer.offsetWidth/this.model.days.length;
-      let x = i*daywidth;
-      x += daywidth/this.hoursPerDay*(this.model.hour-this.model.hours[0]);
-      this.viewmodel.progress.style.width = x + "px";
-      this.viewmodel.timehour.style.left = x + "px";
+
+      let x = i*this.viewmodel.daywidth;
+      x += this.viewmodel.daywidth/this.hoursPerDay*(this.model.hour-this.model.hours[0]);
+      this.viewmodel.daycontainer.scrollLeft = x;
+
       this.viewmodel.timehour.innerHTML = this.model.hour.toFixed(0) +":00";
     }
 
@@ -82,51 +108,87 @@ class TimeSlider {
     onMouseDown(e) {
       if(e.which === 1) {
         this.viewmodel.pressed = true;
-        this.updateSlider(e);
+        this.viewmodel.pressedX = e.pageX;
+        this.viewmodel.startX = e.pageX;
       }
     }
 
     onMouseUp(e) {
       if(e.which === 1) {
         this.viewmodel.pressed = false;
-        this.updateTime(e);
+        if(this.viewmodel.startX == e.pageX) {
+          const deltaX = e.pageX-this.viewmodel.timeslider.offsetLeft-this.viewmodel.timeslider.offsetWidth/2;
+          //this.viewmodel.daycontainer.scrollLeft += deltaX;
+          this.animatedScroll(deltaX);
+        }
       }
+      this.updateTime();
+    }
+
+    animatedScroll(deltaX) {
+      var endPos = this.viewmodel.daycontainer.scrollLeft + deltaX;
+      var steps = 15
+      var scrollStep = deltaX / steps;
+      var scrollInterval = setInterval(function(){
+        if (Math.abs(this.viewmodel.daycontainer.scrollLeft-endPos) > Math.abs(scrollStep)) {
+            this.viewmodel.daycontainer.scrollLeft += scrollStep;
+        } else {
+          this.viewmodel.daycontainer.scrollLeft = endPos;
+          clearInterval(scrollInterval);
+        }
+      }.bind(this),(300/steps));
     }
 
     onMouseMove(e) {
       if(this.viewmodel.pressed) {
-        this.updateSlider(e);
+        const deltaX = this.viewmodel.pressedX-e.pageX;
+        this.viewmodel.pressedX = e.pageX;
+        this.viewmodel.daycontainer.scrollLeft += deltaX;
       }
     }
 
-    updateSlider(e) {
-      const x = e.pageX - this.viewmodel.parentOffsetLeft;
-      this.viewmodel.progress.style.width = x + "px";
-      this.viewmodel.timehour.style.left = x + "px";
-      const h = this.model.hours[0] + this.hoursPerDay/e.target.offsetWidth*e.offsetX;
+    onScroll(e) {
+      // set hour
+      const daypos = this.viewmodel.daycontainer.scrollLeft/this.viewmodel.daywidth;
+      const h = this.model.hours[0] + (this.hoursPerDay-1)*(daypos%1);
       this.viewmodel.timehour.innerHTML = h.toFixed(0) +":00";
     }
 
-    updateTime(e) {
+    updateTime() {
+
       var oldDay = this.model.day;
       var oldHour = this.model.hour;
 
-      const v = this.model.hours[0] + this.hoursPerDay/e.target.offsetWidth*e.offsetX;
-      this.model.hour = parseInt(v.toFixed(0));
-      this.model.day = e.target.day;
+      const daypos = this.viewmodel.daycontainer.scrollLeft/this.viewmodel.daywidth;
+      const h = this.model.hours[0] + (this.hoursPerDay-1)*(daypos%1);
+      this.model.hour = parseInt(h.toFixed(0));
+      this.model.day = this.model.days[Math.floor(daypos)];
 
-      // inform
-      MPUtil.fireEvent(this.viewmodel.timeslider, "changedatetime", {
-          day: this.model.day,
-          hour: this.model.hour,
-          oldDay: oldDay,
-          oldHour: oldHour
-      });
+      // inform when something has changed
+      if(this.model.day != oldDay || this.model.hour != oldHour) {
+        MPUtil.fireEvent(this.viewmodel.timeslider, "changedatetime", {
+            day: this.model.day,
+            hour: this.model.hour,
+            oldDay: oldDay,
+            oldHour: oldHour
+        });
+      }
+    }
 
+    static localToUTC(hour) {
+     return hour + TimeSlider.tsOffsetH;
+    }
+    static addDays(date, days) {
+        var res = new Date(date);
+        res.setDate(res.getDate() + days);
+        return res;
     }
 
     static formatDate(d) {
         return d.getFullYear() + ("0" + (d.getMonth() + 1)).slice(-2) + ("0" + d.getDate()).slice(-2); // yyyymmdd
+    }
+    static formatTime(h) {
+        return ("0" + h).slice(-2) + "0000"; // hhmmss
     }
 
     static parseDate(dateStr) {
@@ -136,3 +198,4 @@ class TimeSlider {
       return new Date(year, month, day);
     }
 }
+TimeSlider.tsOffsetH = new Date().getTimezoneOffset()/60;

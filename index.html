@@ -168,20 +168,10 @@
 -->
 		</div>
 	</div>
-	<!-- Timecontrol
-	<div id="timeslider">
-		<a href="#prev-day"><i class="fa fa-fast-backward"></i></a>
-		<a href="#prev-hour"><i class="fa fa-step-backward"></i></a>
-		<select class="day"></select>
-		<span class="hour"> - 13h</span>
-		<a href="#next-hour"><i class="fa fa-step-forward"></i></a>
-		<a href="#next-day"><i class="fa fa-fast-forward"></i></a>
-	</div>
-  -->
 	<!-- TimeSlider -->
 	<div id="timeslider">
 		<div class="timehour">13:00</div>
-		<div class="progress"></div>
+		<div class="hourtick"></div>
 		<div class="daycontainer">
 			<!-- div with days -->
 		</div>
@@ -207,7 +197,6 @@
 <script src="./js/mputil.js"></script>
 <script src="./js/meteomath.js"></script>
 <script src="./js/legend.js"></script>
-<script src="./js/timecontrol.js"></script>
 <script src="./js/timeslider.js"></script>
 <script src="./js/windalti.js"></script>
 <script src="./js/sounding.js"></script>
@@ -219,10 +208,6 @@
 	MP.initializeSidebar();
 	MP.initializeSlidePanel();
 
-	//var timecontrol = new TimeControl();
-	//timecontrol.initialize();
-	//timecontrol.setHourRange(6, 22); // FIXME: calculate on localtime...
-	//MP.setTimeControl(timecontrol);
 	var timeslider = new TimeSlider(L.DomUtil.get('timeslider'));
 	timeslider.setHourRange([6,22]);  // FIXME: calculate on localtime...
 	MP.setTimeSlider(timeslider);
@@ -238,20 +223,6 @@
 	sounding.initialize(L.DomUtil.get("soundingcanvas"));
 	MP.setSoundingView(sounding);
 
-	// Handle TimeChanges
-	/*
-	timecontrol.addChangeListener(function(e) {
-		MP.updateRaspLayer();
-
-		var date = TimeControl.formatDate(e.detail.day);
-		var run = MP.getDayRun()[date];
-		if (e.detail.day.getDate() != e.detail.oldDay.getDate()) {
-			windalti.changeDay(date, run);
-		}
-		var hour = timecontrol.getHour();
-		sounding.changeHour(date, run, hour);
-	});
-	*/
 	timeslider.addChangeListener(function(e) {
 		MP.updateRaspLayer();
 
@@ -265,7 +236,7 @@
 	});
 
 
-	// initialize with call to status to update the Map and TimeControl
+	// initialize with call to status to update the Map and TimeSlider
 	//MPUtil.httpGet("http://localhost:8080/test/status.json", function(res)   {
 	//var status = JSON.parse(res);
 	MPUtil.httpGetJsonP("https://data0.meteo-parapente.com/status.php", function(res) {
@@ -282,7 +253,6 @@
 		}
 		MP.setDayRun(dayrun);
 		var days = Object.keys(dayrun);
-		//timecontrol.setDays(days);
 		timeslider.setDays(days);
 		timeslider.selectDate(new Date());
 	});

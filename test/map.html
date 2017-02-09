@@ -29,9 +29,9 @@
       font-family: sans-serif;
       font-size: 0.85em;
       left: 100px;
-      bottom: 4px;
+      bottom: 20px; /* minus when we don't want to see the scrollbar on edge */
       width: 500px;
-      background-color: rgba(220, 220, 220, 0.7);
+      /*background-color: rgba(220, 220, 220, 0.7);*/
       border: 1px solid rgba(0, 0, 0, .2);
       box-shadow: 0 0 1px rgba(0, 0, 0, .65);
       z-index: 700;
@@ -42,45 +42,75 @@
       transition: opacity 0.2s ease-in-out;
     }
 
-    .daycontainer {
-      display: flex;
-      width: 100%;
-      /*border: 1px solid red;*/
-    }
-
-    .daycontainer > div {
-      flex-grow: 1;
-      height: 20px;
+		.daycontainer {
+			display: block;
+			position: relative;
+			overflow-x: scroll;
+			white-space: nowrap;
+		}
+		.daycontainer > div {
+			height: 50px;
       text-align: center;
       user-select: none;
+			width: 160px;
+			display: inline-block;
+			background-color: rgba(0,0,0,0.4);
+			color: white;
+		}
+		.daycontainer > div:nth-child(even) {
+      background-color: rgba(0,0,0,0.5);
     }
-
-    .daycontainer > div:not(:first-of-type) {
+		.daycontainer > div:not(:first-of-type) {
       border-left: 1px solid black;
     }
+		.daycontainer > div:first-child {
+			padding-left: 50%;
+		}
+		.daycontainer > div:last-child {
+			padding-right: 50%;
+		}
+		.daycontainer::-webkit-scrollbar {
+			display: none;
+		}
 
-    .progress {
+		.hours {
+			display: block;
+			white-space: nowrap;
+			padding-top: 3px;
+			padding-bottom: 3px;
+			font-size: 0.8em;
+		}
+
+		.hours > span {
+			display: inline-block;
+			width: 20px;
+			text-align: center;
+		}
+
+    .hourtick {
+			position: absolute;
+			left: 50%;
+			height: 10px;
+			margin-left: -1px;
+			width: 2px;
       background-color: orange;
-      width: 1px;  /* calculate on time */
-      height: 4px;
-      border: 1px solid orange;
+			z-index: 700;
     }
 
     .timehour {
       opacity: 0;
       transition: opacity 2s ease-in-out;
       position: absolute;
+			left: 50%;
       top: -24px;
       width: 44px;
       margin-left: -22px;
       line-height: 1.3em;
       text-align: center;
       border-radius: 2px;
-      border: 2px solid rgba(0, 0, 0, .2);
       background-color: rgba(255, 255, 255, 1);
       z-index: 700;
     }
-
 
     </style>
 </head>
@@ -94,7 +124,7 @@
     <!-- timeslider -->
     <div id="timeslider">
       <div class="timehour">13:00</div>
-      <div class="progress"></div>
+			<div class="hourtick"></div>
       <div class="daycontainer">
         <!-- div with days -->
       </div>
@@ -113,54 +143,12 @@
   }).addTo(mymap);
 
   // TimeSlider
-  const days = ["20170205","20170206","20170207","20170208","20170209"];
+  const days = ["20170207","20170208","20170209","20170210","20170211"];
   var timeslider = new TimeSlider(document.getElementById('timeslider'));
-  timeslider.setDays(days);
+	timeslider.setHourRange([6,22]);
+	timeslider.setDays(days);
+
   timeslider.selectDate(new Date());
-  /*
-  const ts = document.getElementById('timeslider');
-  const tsprogress = ts.getElementsByClassName('progress')[0];
-  const tstimehour = ts.getElementsByClassName('timehour')[0];
-  const parentOffsetLeft = ts.offsetLeft;
-  const hour = [6,22];
-  const hoursPerDay = hour[1]-hour[0];
-  console.log(tsprogress);
-  var pressed = false;
-  ts.onmousedown = function(e) {
-      if(e.which === 1) {
-        updateSlider(e);
-        pressed = true;
-      }
-  }
-  ts.onmouseup = function(e) {
-    if(e.which === 1) {
-      pressed = false;
-      updateTime(e);
-    }
-  }
-  //ts.onmouseout = function(e) { pressed = false;}
-  //ts.onmousein = function(e) { if(e.which === 1) pressed = true;}
-  ts.onmousemove = function(e) {
-    if(pressed) {
-      updateSlider(e);
-    }
-   }
-
-  function updateSlider(e) {
-    var x = e.pageX - parentOffsetLeft;
-    tsprogress.style.width = x + "px";
-    tstimehour.style.left = x + "px";
-    const h = hour[0] + (hoursPerDay+1)/e.target.offsetWidth*e.offsetX;
-    tstimehour.innerHTML = h.toFixed(0) +":00";
-  }
-  function updateTime(e) {
-    // end of sliding, update timeslider
-
-    const v = hour[0] + (hoursPerDay+1)/e.target.offsetWidth*e.offsetX;
-    console.log(v.toFixed(0));
-
-  }
-  */
 
 </script>
 

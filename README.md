@@ -26,9 +26,8 @@ It has some missing futures like:
  * next 3 Days
  * onClick data (wind,pblh/wstar,clouds)
 * Meteogramm
-* TimeControl
- * change date with sliding left-right
 * i18n
+* Fullscreen
 
 #### Licence
 Code licenced MIT.
