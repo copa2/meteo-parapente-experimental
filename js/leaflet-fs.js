@@ -1,10 +1,10 @@
 L.Control.Fullscreen = L.Control.extend({
     onAdd: function(map) {
-        var container = L.DomUtil.create('div', 'leaflet-control-fullscreen leaflet-bar leaflet-control');
+        var container = L.DomUtil.create('div', 'leaflet-control-fullscreen leaflet-control leaflet-bar');
 
         this.link = L.DomUtil.create('a', 'leaflet-bar-part', container);
         this.link.href = '#';
-        this.link.innerHTML = "FS";
+        L.DomUtil.create('i', 'fa fa-arrows-alt', this.link);
 
         this._map = map;
         this._isFullscreen = false;
