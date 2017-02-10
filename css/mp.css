@@ -17,6 +17,21 @@ html, body {
     height: 100%;
     overflow: hidden;
 }
+.leaflet-top {
+  top: 30px;
+}
+.leaflet-right {
+  right: -10px;
+}
+@media (min-width:768px) {
+  .leaflet-top {
+    top: -5px;
+  }
+  .leaflet-right {
+    right: 25px;
+  }
+}
+
 #legend {
     position: absolute;
     top: 0;
@@ -52,9 +67,11 @@ html, body {
         transition: width 500ms;
     }
 }
+
 #slide-panel.collapsed {
     width: 0%;
 }
+
 #opener {
     position: fixed;
     right: 0;

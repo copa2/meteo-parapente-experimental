@@ -130,7 +130,10 @@
       </div>
     </div>
 
+		<div id="x"><a id="fs" href="#">gofullscreen</a></div>
+
 </body>
+<script src="../js/leaflet-fs.js"></script>
 <script src="../js/mputil.js"></script>
 <script src="../js/timeslider.js"></script>
 <script>
@@ -149,6 +152,10 @@
 	timeslider.setDays(days);
 
   timeslider.selectDate(new Date());
+
+	// fullscreen
+	var fsc = new L.Control.Fullscreen();
+	fsc.addTo(mymap);
 
 </script>
 

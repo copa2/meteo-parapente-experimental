@@ -121,6 +121,16 @@ var MP = (function() {
         },
 
         // -------------------------------------------------------------------------
+        // fullscreen control
+        initializeFullScreen: function() {
+          if (document.fullscreenEnabled || document.webkitFullscreenEnabled ||
+        		document.mozFullScreenEnabled || document.msFullscreenEnabled) {
+        			var lfs = new L.Control.Fullscreen();
+        			lfs.addTo(model.map);
+        		}
+        },
+
+        // -------------------------------------------------------------------------
         // left sidebar
         initializeSidebar: function() {
             model.sidebar = L.control.sidebar('sidebar').addTo(model.map);

@@ -25,9 +25,11 @@ It has some missing futures like:
 * WindAlti
  * next 3 Days
  * onClick data (wind,pblh/wstar,clouds)
+* Sounding
+ * Change hours
 * Meteogramm
 * i18n
-* Fullscreen
+* ThermalIndicator in Timeslider (calculate on rain,cloud,wind,bldepth for visible region/center)
 
 #### Licence
 Code licenced MIT.
