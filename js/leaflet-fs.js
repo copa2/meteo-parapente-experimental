@@ -8,7 +8,9 @@ L.Control.Fullscreen = L.Control.extend({
 
         this._map = map;
         this._isFullscreen = false;
-        L.DomEvent.on(this.link, "click", L.DomEvent.preventDefault).on(this.link, "click", this._click);
+        L.DomEvent.on(this.link, "click", L.DomEvent.preventDefault)
+                  .on(this.link, "click", L.DomEvent.stopPropagation)
+                  .on(this.link, "click", this._click);
 
         return container;
     },
