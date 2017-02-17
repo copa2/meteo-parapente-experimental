@@ -32,16 +32,16 @@ html, body {
     position: absolute;
     top: 0;
     height: 20px;
-    margin-left: 40px;
-    padding-left: 5px;
-    width: 88%;
+    padding-left: 45px;
+    width: 95%;
     z-index: 1800;
     background-color: rgba(0,0,0,0.5);
     color: white;
+    box-sizing: border-box;
 }
 @media (min-width:768px) {
     #legend {
-        width: 47%;
+        width: 50%;
     }
 }
 #slide-panel {
@@ -81,15 +81,16 @@ html, body {
   position: absolute;
   font-family: sans-serif;
   font-size: 0.85em;
-  margin-left: 40px;
+  padding-left: 40px;
   bottom: 0px; /* minus when we don't want to see the scrollbar on edge */
   width: 100%;
   z-index: 1100;
+  box-sizing: border-box;
 }
 
 @media (min-width:768px) {
   #timeslider {
-    width: 47%;
+    width: 50%;
   }
 }
 
