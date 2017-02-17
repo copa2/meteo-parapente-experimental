@@ -9,15 +9,17 @@ L.Control.Fullscreen = L.Control.extend({
         this._map = map;
         this._isFullscreen = false;
         L.DomEvent.on(this.link, "click", L.DomEvent.preventDefault)
-                  .on(this.link, "click", L.DomEvent.stopPropagation)
-                  .on(this.link, "click", this._click);
+            .on(this.link, "click", L.DomEvent.stopPropagation)
+            .on(this.link, "click", this._click);
 
         return container;
     },
-
+    onRemove: function(map) {
+        L.DomEvent.off(this.link, "click", this._click);
+    },
     _click: function(e) {
         if (this._isFullscreen) {
-            // Brower hell
+            // Browser hell
             if (document.exitFullscreen) {
                 document.exitFullscreen();
             } else if (document.webkitExitFullscreen) {

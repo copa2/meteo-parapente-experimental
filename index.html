@@ -12,12 +12,8 @@
 	<link href="https://cdnjs.cloudflare.com/ajax/libs/weather-icons/2.0.10/css/weather-icons.min.css" rel="stylesheet">
 
 
-	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
-	<script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
-
-	<!-- REVISIT: No external link? -->
-	<link rel="stylesheet" href="./css/leaflet-sidebarv2.min.css" />
-	<script src="./js/leaflet-sidebarv2.min.js"></script>
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
+	<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
 
 	<link rel="stylesheet" href="./css/mp.css" />
 
@@ -50,7 +46,7 @@
 		<div class="sidebar-content">
 			<div class="sidebar-pane" id="home">
 				<h1 class="sidebar-header">meteo-parapente<span class="sidebar-close"><i class="fa fa-close"></i></span>
-                </h1>
+        </h1>
 
 				<p>Expermiental implementation for meteo-parapente usable on a mobile phone.
 					 See <a href="https://meteo-parapente.com" target="_blank">https://meteo-parapente</a>
@@ -170,7 +166,7 @@
 	</div>
 	<!-- TimeSlider -->
 	<div id="timeslider">
-		<div class="timehour">13:00</div>
+		<div class="timehour">13:00<div class="timehourtick"></div></div>
 		<div class="hourtick"></div>
 		<div class="daycontainer">
 			<!-- div with days -->
@@ -195,6 +191,7 @@
 
 </body>
 <script src="./js/leaflet-fs.js"></script>
+<script src="./js/leaflet-sidebar.js"></script>
 <script src="./js/mputil.js"></script>
 <script src="./js/meteomath.js"></script>
 <script src="./js/legend.js"></script>
@@ -233,7 +230,7 @@
 		if (e.detail.day != e.detail.oldDay) {
 			windalti.changeDay(date, run);
 		}
-		var hour = timeslider.getHour(); // fix local to utc? and format?
+		var hour = timeslider.getHour();
 		sounding.changeHour(date, run, hour);
 	});
 

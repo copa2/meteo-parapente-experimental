@@ -1,15 +1,13 @@
 class Legend {
     constructor() {
-
-
         this.model = {
             type: 'pbltop',
         };
     }
 
-
     initialize(c) {
         this.model.canvas = c;
+        window.addEventListener('resize', this.draw.bind(this));
         this.selectLayer('pbltop');
     }
 
@@ -31,16 +29,21 @@ class Legend {
             ctx.fillStyle = "rgba(" + l[1] + "," + l[2] + "," + l[3] + "," + l[4] + ")";
             ctx.fillRect(part * i | 0, 0, part | 0, 17);
         }
-        ctx.font = "8px Verdana";
-        ctx.textAlign = "left";
-        ctx.fillStyle = "black";
-        for (var i = 0; i < selectedLegend.length; i++) {
-            var x = (part * i) | 0;
-            var text = this.format(selectedLegend[i][0]);
-            ctx.fillText(text, x, 25);
-        }
 
-        ctx.fillText(this.getValueType(), part * selectedLegend.length | 0, 15);
+        //ctx.font = "12px sans-serif";
+        ctx.textAlign = "left";
+        for (var i = 0; i < selectedLegend.length; i++) {
+            var l = selectedLegend[i];
+            var x = (part * i) | 0;
+            var text = this.format(l[0]);
+            // http://stackoverflow.com/questions/3942878/how-to-decide-font-color-in-white-or-black-depending-on-background-color
+            ctx.fillStyle = ((l[1] * 0.299 + l[2] * 0.587 + l[3] * 0.114) > 186) ? "black" : "white";
+            //ctx.strokeStyle = ((l[1]*0.299 + l[2]*0.587 + l[3]*0.114) > 186) ? "black" : "white";
+            ctx.fillText(text, x + 2, 12);
+            //ctx.strokeText(text, x+2, 12);
+        }
+        ctx.fillStyle = "white";
+        ctx.fillText(this.getValueType(), part * selectedLegend.length | 0, 12);
     }
 
     selectLayer(type) {

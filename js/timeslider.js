@@ -25,7 +25,7 @@ class TimeSlider {
       ts.addEventListener("mousemove", this.onMouseMove.bind(this));
       this.viewmodel.daycontainer.addEventListener("scroll", this.onScroll.bind(this));
 
-      var debounceUpdateTime = MPUtil.debounce(this.updateTime.bind(this),500);
+      var debounceUpdateTime = MPUtil.debounce(this.updateTime.bind(this),100);
       this.viewmodel.daycontainer.addEventListener("scroll", debounceUpdateTime);
       // touch is another world...
       //ts.addEventListener("touchstart", this.onMouseDown.bind(this));

@@ -32,8 +32,8 @@ class Sounding {
 
     initialize(canvas) {
         this.viewmodel.canvas = canvas;
-        canvas.addEventListener("mousedown", this._onClick.bind(this));
-        window.addEventListener('orientationchange', this.draw.bind(this));	// redraw on mobile orientation change
+        canvas.addEventListener('mousedown', this._onClick.bind(this));
+        window.addEventListener('resize', this.draw.bind(this));
     }
 
     load(day, run, hour, lat, lng, fn) {

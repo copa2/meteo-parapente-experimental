@@ -57,26 +57,26 @@ var MP = (function() {
         },
 
         updateRaspLayer: function() {
-           var day = model.timeslider.getDay();
-           var run = model.dayrun[day];
-           var datetime = day + TimeSlider.formatTime(TimeSlider.localToUTC(model.timeslider.getHour()));
-           model.raspLayer.setUrl(this.createRaspLayerTemplateUrl(run, datetime, model.type));
+            var day = model.timeslider.getDay();
+            var run = model.dayrun[day];
+            var datetime = day + TimeSlider.formatTime(TimeSlider.localToUTC(model.timeslider.getHour()));
+            model.raspLayer.setUrl(this.createRaspLayerTemplateUrl(run, datetime, model.type));
         },
 
         setSoundingView(sounding) {
-          model.sounding = sounding;
+            model.sounding = sounding;
         },
 
         setWindAltiView(windalti) {
-          model.windalti = windalti;
+            model.windalti = windalti;
         },
 
         setLegend(legend) {
-          model.legend = legend;
+            model.legend = legend;
         },
 
         setTimeSlider(timeslider) {
-          model.timeslider = timeslider;
+            model.timeslider = timeslider;
         },
 
         onMapClick: function(e) {
@@ -123,17 +123,19 @@ var MP = (function() {
         // -------------------------------------------------------------------------
         // fullscreen control
         initializeFullScreen: function() {
-          if (document.fullscreenEnabled || document.webkitFullscreenEnabled ||
-        		document.mozFullScreenEnabled || document.msFullscreenEnabled) {
-        			var lfs = new L.Control.Fullscreen();
-        			lfs.addTo(model.map);
-        		}
+            if (document.fullscreenEnabled || document.webkitFullscreenEnabled ||
+                document.mozFullScreenEnabled || document.msFullscreenEnabled) {
+                model.fs = new L.Control.Fullscreen();
+                model.fs.addTo(model.map);
+            }
         },
 
         // -------------------------------------------------------------------------
         // left sidebar
         initializeSidebar: function() {
-            model.sidebar = L.control.sidebar('sidebar').addTo(model.map);
+            model.sidebar = new L.Control.Sidebar('sidebar');
+            model.sidebar.addTo(model.map);
+
             // add actions for rasp-layers
             var rasplayertypes = L.DomUtil.get('sidebar').querySelectorAll('ul.rasp-layers > li > a')
             for (var i = 0; i < rasplayertypes.length; i++) {
@@ -153,7 +155,7 @@ var MP = (function() {
             var rasplayertypes = sb.querySelectorAll('ul.rasp-layers > li > a')
             for (var i = 0; i < rasplayertypes.length; i++) {
                 var e = rasplayertypes[i];
-                e === this ? L.DomUtil.addClass(e, 'selected') : L.DomUtil.removeClass(e, 'selected');
+                e === this ? L.DomUtil.addClass(e.parentElement, 'selected') : L.DomUtil.removeClass(e.parentElement, 'selected');
             }
             var explainEles = sb.querySelectorAll('div.explain > div');
             for (var i = 0; i < explainEles.length; i++) {
@@ -189,24 +191,24 @@ var MP = (function() {
 
         // Toggle between WindAlti/Sounding
         onClickChangeView: function() {
-          // problems with css so do it here
-          var wac = L.DomUtil.get('windalticanvas');
-          var sc = L.DomUtil.get('soundingcanvas');
+            // problems with css so do it here
+            var wac = L.DomUtil.get('windalticanvas');
+            var sc = L.DomUtil.get('soundingcanvas');
 
-          if(wac.style.display == "none") {
-            wac.width = sc.width;
-            wac.height = sc.height;
-            wac.style.display = "block";
-            sc.style.display = "none";
-            windalti.draw();
-            sounding.setVisible(false);
-          } else if(sc.style.display == "none") {
-            sc.width = wac.width;
-            sc.height = wac.height;
-            sc.style.display = "block";
-            wac.style.display = "none";
-            sounding.setVisible(true);
-          }
+            if (wac.style.display == "none") {
+                wac.width = sc.width;
+                wac.height = sc.height;
+                wac.style.display = "block";
+                sc.style.display = "none";
+                windalti.draw();
+                sounding.setVisible(false);
+            } else if (sc.style.display == "none") {
+                sc.width = wac.width;
+                sc.height = wac.height;
+                sc.style.display = "block";
+                wac.style.display = "none";
+                sounding.setVisible(true);
+            }
 
         }
 
